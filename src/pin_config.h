@@ -1,17 +1,19 @@
 #ifndef PIN_CONFIG_H
 #define PIN_CONFIG_H
-
 #include <Arduino.h>
 
+const int TOTAL_GPIO_PINS = 53;						// Total number of GPIO pins on the ESP32-S3
+
+													/* Defining the Pin struct */
 struct Pin {
-	int GPIO_NUMBER;						// GPIO Numbers from the module 
-	String type;							// Reserved or GPIO; Pin as read from the datasheet
-	String mode;							// PinMode: Input or Output
-	String state;							// PinState: High or Low
+	int GPIO_NUMBER;								// GPIO Numbers from the module 
+	String type;									// Reserved or GPIO; Pin as read from the datasheet
+	String mode;									// PinMode: Input or Output
+	String state;									// PinState: High or Low
 };
 
 
-									/* Creating List of pin structs */
+													/* Creating List of pin structs */
 Pin esp32s3Pins[] = {
 	{0, "GPIO_BOOT", "INPUT", "LOW"},				// BOOT
 	{1, "GPIO", "INPUT", "LOW"},					// GPIO1 (ADC1_CH0 ----------------- T1)
@@ -68,17 +70,8 @@ Pin esp32s3Pins[] = {
 	{52, "GND", "N/A", "N/A"},      				// GND Pin
 };
 
-
-	
-
-
-
-
-
-
-
-
-
-
+int getTotalPins() {
+	return sizeof(esp32s3Pins) / sizeof(esp32s3Pins[0]);
+}
 
 #endif 
