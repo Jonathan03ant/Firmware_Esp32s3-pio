@@ -3,76 +3,83 @@
 
 #include <Arduino.h>
 
-const int TOTAL_GPIO_PINS = 53;  // Total number of GPIO pins on the ESP32-S3
-
-/* Defining the Pin struct */
-struct Pin {
-    int GPIO_NUMBER;    // GPIO Numbers from the module 
-    const char* type;        // Type: "GPIO", "RESERVED", etc.
-    const char* mode;        // PinMode: "INPUT" or "OUTPUT"
-    const char* state;       // PinState: "HIGH" or "LOW"
+// Enum for pin types
+enum PinType {
+    GPIO_PIN,
+    RESERVED_PIN,
+    STRAP_PIN,
+    BOOT_PIN,
+    POWER_3V3_PIN,
+    POWER_5V_PIN,
+    GND_PIN,
+    RESET_PIN
 };
 
-/* Creating list of pin structs */
-Pin esp32s3Pins[] = {
-    {0,  "BOOT", "NA",  "NA"},   // BOOT
-    {1,  "STRAP", "NA",  "NA"},   	 // GPIO1
-    {2,  "GPIO", "INPUT",  "LOW"},   // GPIO2
-    {3,  "STRAP", "NA",  "NA"},   	 // GPIO3
-    {4,  "GPIO", "INPUT",  "LOW"},   // GPIO4
-    {5,  "GPIO", "INPUT",  "LOW"},   // GPIO5
-    {6,  "GPIO", "INPUT",  "LOW"},   // GPIO6
-    {7,  "GPIO", "INPUT",  "LOW"},   // GPIO7
-    {8,  "GPIO", "INPUT",  "LOW"},   // GPIO8
-    {9,  "GPIO", "INPUT",  "LOW"},   // GPIO9
-    {10, "GPIO", "INPUT",  "LOW"},   // GPIO10
-    {11, "GPIO", "INPUT",  "LOW"},   // GPIO11
-    {12, "GPIO", "INPUT",  "LOW"},   // GPIO12
-    {13, "GPIO", "INPUT",  "LOW"},   // GPIO13
-    {14, "GPIO", "INPUT",  "LOW"},   // GPIO14
-    {15, "GPIO", "INPUT",  "LOW"},   // GPIO15
-    {16, "GPIO", "INPUT",  "LOW"},   // GPIO16
-    {17, "GPIO", "INPUT",  "LOW"},   // GPIO17
-    {18, "GPIO", "INPUT",  "LOW"},   // GPIO18
-    {19, "GPIO", "INPUT",  "LOW"},   // GPIO19
-    {20, "GPIO", "INPUT",  "LOW"},   // GPIO20
-    {21, "GPIO", "INPUT",  "LOW"},   // GPIO21
-    // Reserved pins
-    {22, "RESERVED", "N/A", "N/A"},  // Reserved
-    {23, "RESERVED", "N/A", "N/A"},  // Reserved
-    {24, "RESERVED", "N/A", "N/A"},  // Reserved
-    {25, "RESERVED", "N/A", "N/A"},  // Reserved
-    {26, "RESERVED", "N/A", "N/A"},  // Reserved
-    {27, "RESERVED", "N/A", "N/A"},  // Reserved
-    {28, "RESERVED", "N/A", "N/A"},  // Reserved
-    {29, "RESERVED", "N/A", "N/A"},  // Reserved
-    {30, "RESERVED", "N/A", "N/A"},  // Reserved
-    {31, "RESERVED", "N/A", "N/A"},  // Reserved
-    {32, "RESERVED", "N/A", "N/A"},  // Reserved
-    {33, "3V3", "N/A", "N/A"},  // Reserved
-    {34, "RESERVED", "N/A", "N/A"},  // Reserved
-    {35, "RESERVED", "N/A", "N/A"},  // Reserved
-    {36, "RESERVED", "N/A", "N/A"},  // Reserved
-    {37, "RESERVED", "N/A", "N/A"},  // Reserved
-    {38, "GPIO", "INPUT",  "LOW"},   // GPIO38
-    {39, "GPIO", "INPUT",  "LOW"},   // GPIO39
-    {40, "GPIO", "INPUT",  "LOW"},   // GPIO40
-    {41, "RESERVED", "N/A", "N/A"},  // GPIO41
-    {42, "RESERBED", "NA",  "NA"},   // GPIO42
-    {43, "GPIO", "INPUT",  "LOW"},   // GPIO43
-    {44, "GPIO", "INPUT",  "LOW"},   // GPIO44
-    {45, "STRAP", "INPUT",  "LOW"},  // GPIO45
-    {46, "STRAP", "INPUT",  "LOW"},  // GPIO46
-    {47, "GPIO", "INPUT",  "LOW"},   // GPIO47
-    {48, "GPIO", "INPUT",  "LOW"},   // GPIO48
-    // Non-GPIO pins
-    {49, "RST",  "N/A", "N/A"},      // RST
-    {50, "5V",   "N/A", "N/A"},      // 5V Pin
-    {51, "GND",  "N/A", "N/A"},      // GND Pin
+// Structure to hold pin configuration
+struct PinConfig {
+    uint8_t pinNumber;
+    PinType type;
 };
 
-int getTotalPins() {
-    return sizeof(esp32s3Pins) / sizeof(esp32s3Pins[0]);
-}
+// Static array of pin configurations
+const PinConfig pinConfigs[] = {
+    {0,  BOOT_PIN},        																			// GPIO0
+    {1,  STRAP_PIN},       																			// GPIO1
+    {2,  GPIO_PIN},        																			// GPIO2
+    {3,  STRAP_PIN},       																			// GPIO3
+    {4,  GPIO_PIN},        																			// GPIO4
+    {5,  GPIO_PIN},        																			// GPIO5
+    {6,  GPIO_PIN},        																			// GPIO6
+    {7,  GPIO_PIN},       																		 	// GPIO7
+    {8,  GPIO_PIN},        																			// GPIO8
+    {9,  GPIO_PIN},        																			// GPIO9
+    {10, GPIO_PIN},        																			// GPIO10
+    {11, GPIO_PIN},        																			// GPIO11
+    {12, GPIO_PIN},        																			// GPIO12
+    {13, GPIO_PIN},        																			// GPIO13
+    {14, GPIO_PIN},        																			// GPIO14
+    {15, GPIO_PIN},        																			// GPIO15
+    {16, GPIO_PIN},        																			// GPIO16
+    {17, GPIO_PIN},        																			// GPIO17
+    {18, GPIO_PIN},        																			// GPIO18
+    {19, GPIO_PIN},        																			// GPIO19
+    {20, GPIO_PIN},        																			// GPIO20
+    {21, GPIO_PIN},        																			// GPIO21
+    {22, RESERVED_PIN},    																			// Reserved
+    {23, RESERVED_PIN},    																			// Reserved
+    {24, RESERVED_PIN},    																			// Reserved
+    {25, RESERVED_PIN},    																			// Reserved
+    {26, RESERVED_PIN},    																			// Reserved
+    {27, RESERVED_PIN},    																			// Reserved
+    {28, RESERVED_PIN},    																			// Reserved
+    {29, RESERVED_PIN},    																			// Reserved
+    {30, RESERVED_PIN},    																			// Reserved
+    {31, RESERVED_PIN},    																			// Reserved
+    {32, RESERVED_PIN},    																			// Reserved
+    {33, POWER_3V3_PIN},   																			// 3V3
+    {34, RESERVED_PIN},    																			// Reserved
+    {35, RESERVED_PIN},    																			// Reserved
+    {36, RESERVED_PIN},    																			// Reserved
+    {37, RESERVED_PIN},    																			// Reserved
+    {38, GPIO_PIN},        																			// GPIO38
+    {39, GPIO_PIN},        																			// GPIO39
+    {40, GPIO_PIN},        																			// GPIO40
+    {41, RESERVED_PIN},    																			// GPIO41
+    {42, RESERVED_PIN},    																			// GPIO42
+    {43, GPIO_PIN},        																			// GPIO43
+    {44, GPIO_PIN},        																			// GPIO44
+    {45, STRAP_PIN},       																			// GPIO45
+    {46, STRAP_PIN},       																			// GPIO46
+    {47, GPIO_PIN},        																			// GPIO47
+    {48, GPIO_PIN},        																			// GPIO48
+    {49, RESET_PIN},       																			// RST
+    {50, POWER_5V_PIN},    																			// 5V Pin
+    {51, GND_PIN},         																			// GND Pin
+    
+};
+
+
+const size_t TOTAL_PINS = sizeof(pinConfigs) / sizeof(pinConfigs[0]);						        // Predefined Total Number of Pins
 
 #endif  // PIN_CONFIG_H
+
