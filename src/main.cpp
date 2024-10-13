@@ -34,6 +34,12 @@ void setPinState(uint8_t pinNumber, const String& state) {
         return;
     }
 
+                                                                            /*
+                                                                                Pins must be set to output first
+                                                                                The program will change input pins to HIGH
+                                                                                HOWEVER:- if the pin is an input pin this will be false activation
+
+                                                                            */
     if (state == "HIGH") {
         digitalWrite(pinNumber, HIGH);
         Serial.println("Pin " + String(pinNumber) + " set to HIGH.");
@@ -45,7 +51,7 @@ void setPinState(uint8_t pinNumber, const String& state) {
     }
 }
 // Command parsing function
-void parseCommand(const String& command) {
+void parseCommand(const String &command) {
     int firstComma = command.indexOf(',');
     if (firstComma == -1) {
         Serial.println("Error: Invalid command format.");
